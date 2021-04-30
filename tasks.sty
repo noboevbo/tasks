@@ -119,6 +119,7 @@
 \bool_new:N   \l__tasks_item_full_line_bool
 \bool_new:N   \l__tasks_item_rest_of_line_bool
 \bool_new:N   \l__tasks_measuring_bool
+\bool_new:N   \l__tasks_count_custom_labels
 
 \tl_new:N     \l__tasks_instance_tl
 \tl_new:N     \l__tasks_label_tl
@@ -471,7 +472,7 @@
     label-width     = \l__tasks_label_default_width_dim  ,
     label-offset    = \l__tasks_label_default_offset_dim ,
     item-format     = \l__tasks_item_format_tl           ,
-    after-item-skip = \l__tasks_after_item_skip
+    after-item-skip = \l__tasks_after_item_skip          
   }
   {
     \AssignTemplateKeys
@@ -562,8 +563,14 @@
       {
         \__tasks_read_item:www ##1 \q_stop
         % TODO
-        \tl_if_eq:NNT \l__tasks_tmp_label_tl \c__tasks_default_label_tl
+        \bool_if:nTF \l__tasks_count_custom_labels {
+          % count custom labels
+          \refstepcounter { \l__tasks_counter_tl }
+        }{
+          % check if label equals default label to make it count
+          \tl_if_eq:NNT \l__tasks_tmp_label_tl \c__tasks_default_label_tl
           { \refstepcounter { \l__tasks_counter_tl } }
+        }
         \tl_set:Nx \l__tasks_label_tl { { \exp_not:V \l__tasks_tmpa_tl } }
         \tl_set:cV {tasklabel} \l__tasks_label_tl
         \bool_if:NTF \l__tasks_custom_label_format_bool
@@ -691,7 +698,9 @@
       \skip_set:Nn \l__tasks_custom_after_item_skip {#1} ,
     resume           .bool_set:N = \l__tasks_resume_bool ,
     start            .int_set:N  = \l__tasks_start_int ,
-    start            .initial:n  = 1
+    start            .initial:n  = 1,
+    count-custom-labels .bool_set:N = \l__tasks_count_custom_labels,
+    count-custom-labels .default:n = false
   }
 
 % --------------------------------------------------------------------------
@@ -886,3 +895,4 @@
 2020/05/11 v1.2b  - options are set to late for `before-skip' -- fixed
 2020/08/19 v1.3   - add `ref' option
 2021/02/20 v1.3a  - fix issue #23
+2021/04/30 v1.3b  - added count-custom-labels option
